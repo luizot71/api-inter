@@ -1,4 +1,13 @@
+# URL, usuario e senha sao fornecidos por ApiInterTest a partir do container.
 datasources:
   default:
-    url: jdbc:tc:postgresql:16-alpine:///postgres
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    driver-class-name: org.postgresql.Driver
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: create-drop
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false

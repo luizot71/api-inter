@@ -121,3 +121,47 @@
 - [https://jspecify.dev/docs/start-here/](https://jspecify.dev/docs/start-here/)
 
 
+
+## Testes reais de PostgreSQL e Kafka
+
+Requisitos: Docker Desktop iniciado em modo Linux, Java 25 e Maven 3.9 pelo Mise.
+As dependencias de Testcontainers, AssertJ e Awaitility ja estao no pom.xml.
+
+No PowerShell, a partir da raiz do projeto:
+
+```powershell
+mise exec -- mvn clean verify
+```
+
+Executar somente Kafka:
+
+```powershell
+mise exec -- mvn '-Dtest=KafkaIntegrationTest' test
+```
+
+Executar somente a persistencia JPA:
+
+```powershell
+mise exec -- mvn '-Dtest=ApiInterTest#shouldPersistAndReadNoteInANewSession' test
+```
+
+As aspas preservam os argumentos no PowerShell e no Git Bash. No IntelliJ, use JDK 25 para o projeto e para o executor de testes. E possivel executar cada classe pelo icone ao lado dela.
+
+### Arquivos e comportamento
+
+- `src/test/java/co/inter/piggies/KafkaIntegrationTest.java`: JUnit inicia `apache/kafka-native:4.3.1` com `@Container`. O teste obtem o bootstrap server por `getBootstrapServers()`, cria topico e grupo exclusivos, aguarda confirmacao de envio e verifica topico, chave e conteudo recebidos. Awaitility limita a espera pelo recebimento a 30 segundos; o polling usa a mesma thread por causa do KafkaConsumer. Esse limite e da etapa de consumo, nao de todo o build ou download de imagens. Producer, consumer e admin sao fechados; o topico e removido; a extensao encerra o container.
+- `src/test/java/co/inter/piggies/ApiInterTest.java`: inicia `postgres:16-alpine` antes do contexto Micronaut pelo `TestPropertyProvider`, fornecendo URL e credenciais dinamicas. Desabilita a transacao automatica de teste para controlar o commit. Grava PreparationNote, fecha a sessao e consulta em outra sessao/transacao. Confere ID e conteudo, e remove o registro. O container fica no escopo da JVM e sua limpeza e feita pelo Testcontainers/Ryuk ao encerrar o processo.
+- `src/test/resources/application-test.yml`: usa driver PostgreSQL normal, pois o container e iniciado explicitamente. `create-drop` vale apenas para o ambiente de testes; caches de segundo nivel e de consultas ficam desativados.
+
+Nao e preciso iniciar PostgreSQL ou Kafka manualmente nem fixar portas. O teste Kafka usa os clientes Apache diretamente: valida a integracao real com o broker, mas nao implementa produtor/listener anotado do Micronaut. Esse e um exercicio posterior.
+
+A suite possui tres testes: inicializacao da aplicacao, persistencia JPA e envio/consumo Kafka. Os relatorios ficam em `target/surefire-reports`. Se o Docker estiver indisponivel, os testes devem falhar, e nao serem silenciosamente ignorados.
+
+### Versionar depois de validar
+
+```bash
+git add src/test/java/co/inter/piggies/ApiInterTest.java src/test/java/co/inter/piggies/KafkaIntegrationTest.java src/test/resources/application-test.yml README.md
+git diff --cached
+git commit -m "test: valida persistencia JPA e mensagens Kafka com Testcontainers"
+git push
+```
