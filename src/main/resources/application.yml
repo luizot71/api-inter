@@ -3,16 +3,28 @@ micronaut:
     name: api-inter
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: ''
+    url: ${JDBC_URL:`jdbc:postgresql://localhost:55432/inter_study`}
+    username: ${JDBC_USER:study}
+    password: ${JDBC_PASSWORD:study}
     driver-class-name: org.postgresql.Driver
     db-type: postgres
     dialect: POSTGRES
-jpa.default.properties.hibernate.hbm2ddl.auto: update
 jpa:
   default:
     properties:
       hibernate:
         hbm2ddl:
           auto: update
+app:
+  notes-topic: ${NOTES_TOPIC:notes-created}
+  notes-group: ${NOTES_GROUP:notes-study}
+  consumer-enabled: true
+kafka:
+  bootstrap:
+    servers: ${KAFKA_BOOTSTRAP_SERVERS:`localhost:59092`}
+  producers:
+    default:
+      acks: all
+      max.block.ms: 5000
+      request.timeout.ms: 3000
+      delivery.timeout.ms: 5000

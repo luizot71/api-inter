@@ -4,10 +4,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+@Getter
 @Entity
+@NoArgsConstructor
 @Table(name = "preparation_note")
 public class PreparationNote {
 
@@ -17,20 +21,9 @@ public class PreparationNote {
     @Column(nullable = false)
     private String content;
 
-    protected PreparationNote() {
-        // Construtor utilizado pelo JPA
-    }
-
     public PreparationNote(UUID id, String content) {
         this.id = id;
         this.content = content;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getContent() {
-        return content;
-    }
 }

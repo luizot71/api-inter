@@ -25,6 +25,7 @@ import static org.awaitility.Awaitility.await;
 
 @Testcontainers
 class KafkaIntegrationTest {
+
     @Container
     static final KafkaContainer KAFKA = new KafkaContainer("apache/kafka-native:4.3.1");
 

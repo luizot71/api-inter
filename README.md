@@ -155,7 +155,7 @@ As aspas preservam os argumentos no PowerShell e no Git Bash. No IntelliJ, use J
 
 Nao e preciso iniciar PostgreSQL ou Kafka manualmente nem fixar portas. O teste Kafka usa os clientes Apache diretamente: valida a integracao real com o broker, mas nao implementa produtor/listener anotado do Micronaut. Esse e um exercicio posterior.
 
-A suite possui tres testes: inicializacao da aplicacao, persistencia JPA e envio/consumo Kafka. Os relatorios ficam em `target/surefire-reports`. Se o Docker estiver indisponivel, os testes devem falhar, e nao serem silenciosamente ignorados.
+A suite original possui tres testes: inicializacao da aplicacao, persistencia JPA e envio/consumo Kafka. A evolucao descrita abaixo adiciona 11 casos HTTP, idempotencia e falhas em NotesHttpTest. Os relatorios ficam em `target/surefire-reports`. Se o Docker estiver indisponivel, os testes devem falhar, e nao serem silenciosamente ignorados.
 
 ### Versionar depois de validar
 
@@ -165,3 +165,12 @@ git diff --cached
 git commit -m "test: valida persistencia JPA e mensagens Kafka com Testcontainers"
 git push
 ```
+
+
+## API de estudo e entrevista de 28/09
+
+Veja [o roteiro passo a passo](docs/PREPARACAO-28-09.md). A API adiciona POST /notes, GET /notes/{id}, validação, idempotência e produtor/consumidor Micronaut Kafka.
+
+Para testes: `mise exec -- mvn clean verify`. Para uso manual: `docker compose up -d`, `mise exec -- mvn mn:run` e, em outro terminal, `./scripts/demo.ps1`. O Compose é apenas para desenvolvimento; testes criam seus próprios containers.
+
+O envio Kafka ocorre após o commit do banco. Há recuperação por repetição do POST, mas não há outbox nem recuperação automática após queda do processo. Leia a seção de falhas no roteiro antes de apresentar a solução.

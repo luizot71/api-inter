@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @MicronautTest(transactional = false)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ApiInterTest implements TestPropertyProvider {
+
     // Iniciado antes de do Micronaut criar o DataSource
     private static final PostgreSQLContainer POSTGRES =
         new PostgreSQLContainer("postgres:16-alpine");
@@ -43,7 +44,7 @@ class ApiInterTest implements TestPropertyProvider {
         UUID id = UUID.randomUUID();
         String content = "Persistencia real no PostgreSQL";
 
-        // Commit antes de fechar a primeira sessao: flush sozinho nao basta
+        // Commit ocorre antes de fechar a primeira sessão, porque somente o flush não basta
         try (var session = sessionFactory.openSession()) {
             var transaction = session.beginTransaction();
             try {
@@ -55,7 +56,7 @@ class ApiInterTest implements TestPropertyProvider {
             }
         }
 
-        // Nova sessao, sem o cache de primeiro nivel da sessao anterior
+        // Nova sessão, sem o cache do primeiro nível da sessão anterior
         try (var session = sessionFactory.openSession()) {
             var transaction = session.beginTransaction();
             try {

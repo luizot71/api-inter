@@ -11,3 +11,7 @@ jpa:
         cache:
           use_second_level_cache: false
           use_query_cache: false
+
+# O teste HTTP habilita o listener e fornece o broker real.
+app:
+  consumer-enabled: false
